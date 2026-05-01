@@ -1,0 +1,64 @@
+<view class="page-share">
+  <!-- 加载中 -->
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+
+  <!-- 菜单内容 -->
+  <view class="share-content" wx:if="{{!loading && order}}">
+    <view class="share-header">
+      <view class="share-title">今晚的菜单</view>
+      <view class="share-subtitle">
+        已选 {{order.items.length}} 道菜，共 ¥{{order.total_price}}
+      </view>
+    </view>
+
+    <!-- 已选菜品列表 -->
+    <view class="dish-list">
+      <view class="dish-item" wx:for="{{order.items}}" wx:key="id">
+        <image class="dish-img" src="{{item.dish_image || '/assets/default-dish.png'}}" mode="aspectFill"/>
+        <view class="dish-info">
+          <view class="dish-name">{{item.dish_name}}</view>
+          <view class="price">{{item.dish_price}}</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 操作按钮 -->
+    <view class="share-actions">
+      <button class="btn-primary" bindtap="onOpenAddPanel">我也要加菜</button>
+      <button class="btn-outline" open-type="share">转发给其他人</button>
+    </view>
+  </view>
+
+  <!-- 选菜面板 -->
+  <view class="panel-mask" wx:if="{{showAddPanel}}" bindtap="onClosePanel"></view>
+  <view class="add-panel {{showAddPanel ? 'show' : ''}}">
+    <view class="panel-header">
+      <text class="panel-title">选一道菜加入</text>
+      <text class="panel-close" bindtap="onClosePanel">关闭</text>
+    </view>
+
+    <!-- 分类标签 -->
+    <scroll-view scroll-x class="category-tabs">
+      <view class="tab {{activeCategory === item.key ? 'active' : ''}}"
+            wx:for="{{categories}}" wx:key="key"
+            bindtap="onCategoryTap" data-key="{{item.key}}">
+        {{item.name}}
+      </view>
+    </scroll-view>
+
+    <!-- 菜品列表 -->
+    <scroll-view scroll-y class="panel-dishes">
+      <view class="panel-dish-item" wx:for="{{dishes}}" wx:key="id"
+            bindtap="onAddDish" data-dish="{{item}}">
+        <image class="panel-dish-img" src="{{item.image_url || '/assets/default-dish.png'}}" mode="aspectFill"/>
+        <view class="panel-dish-info">
+          <view class="panel-dish-name">{{item.name}}</view>
+          <view class="price">{{item.price}}</view>
+        </view>
+        <view class="panel-add-btn">+</view>
+      </view>
+    </scroll-view>
+  </view>
+</view>

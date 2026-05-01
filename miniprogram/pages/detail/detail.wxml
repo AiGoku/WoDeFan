@@ -1,0 +1,32 @@
+<view class="page-detail" wx:if="{{dish}}">
+  <image class="dish-hero" src="{{dish.image_url || '/assets/default-dish.png'}}" mode="aspectFill"/>
+
+  <view class="dish-body">
+    <view class="dish-header">
+      <view class="dish-name">{{dish.name}}</view>
+      <view class="price">{{dish.price}}</view>
+    </view>
+
+    <view class="dish-desc" wx:if="{{dish.description}}">
+      {{dish.description}}
+    </view>
+
+    <view class="dish-meta">
+      <view class="meta-tag" wx:if="{{dish.season_tag}}">当季推荐</view>
+      <view class="meta-tag">{{dish.category === 'cold_dish' ? '凉菜' :
+        dish.category === 'hot_dish' ? '热菜' :
+        dish.category === 'soup' ? '汤羹' :
+        dish.category === 'staple' ? '主食' :
+        dish.category === 'dessert' ? '甜品小吃' : '饮品'}}</view>
+    </view>
+  </view>
+
+  <view class="bottom-bar">
+    <button class="btn-share" open-type="share">
+      分享给朋友
+    </button>
+    <button class="btn-add {{inCart ? 'active' : ''}}" bindtap="onAddToCart">
+      {{inCart ? '已在菜单中 ✓' : '加入菜单'}}
+    </button>
+  </view>
+</view>

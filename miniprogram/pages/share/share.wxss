@@ -1,0 +1,184 @@
+.page-share {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #FF6B35 0%, #FF8F65 40%, #F5F5F5 40%);
+}
+
+.share-content {
+  padding: 20rpx;
+}
+
+.share-header {
+  text-align: center;
+  color: #fff;
+  padding: 40rpx 0 30rpx;
+}
+
+.share-title {
+  font-size: 44rpx;
+  font-weight: 700;
+}
+
+.share-subtitle {
+  font-size: 28rpx;
+  margin-top: 12rpx;
+  opacity: 0.9;
+}
+
+/* 菜品列表 */
+.dish-list {
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 20rpx;
+  margin-bottom: 30rpx;
+}
+
+.dish-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.dish-item:last-child {
+  border-bottom: none;
+}
+
+.dish-img {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 12rpx;
+  flex-shrink: 0;
+}
+
+.dish-info {
+  flex: 1;
+  margin-left: 20rpx;
+}
+
+.dish-name {
+  font-size: 30rpx;
+  font-weight: 500;
+}
+
+/* 操作按钮 */
+.share-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+  padding: 0 20rpx;
+}
+
+/* 选菜面板 */
+.panel-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 100;
+}
+
+.add-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 70vh;
+  background: #fff;
+  border-radius: 24rpx 24rpx 0 0;
+  z-index: 101;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+
+.add-panel.show {
+  transform: translateY(0);
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.panel-title {
+  font-size: 32rpx;
+  font-weight: 600;
+}
+
+.panel-close {
+  color: #999;
+  font-size: 28rpx;
+}
+
+.category-tabs {
+  white-space: nowrap;
+  padding: 16rpx 24rpx;
+}
+
+.tab {
+  display: inline-block;
+  padding: 10rpx 24rpx;
+  margin-right: 12rpx;
+  border-radius: 24rpx;
+  font-size: 26rpx;
+  color: #666;
+  background: #F5F5F5;
+}
+
+.tab.active {
+  background: #FF6B35;
+  color: #fff;
+}
+
+.panel-dishes {
+  height: calc(70vh - 180rpx);
+  padding: 0 24rpx;
+}
+
+.panel-dish-item {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.panel-dish-img {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 12rpx;
+  flex-shrink: 0;
+}
+
+.panel-dish-info {
+  flex: 1;
+  margin-left: 16rpx;
+}
+
+.panel-dish-name {
+  font-size: 28rpx;
+}
+
+.panel-add-btn {
+  width: 56rpx;
+  height: 56rpx;
+  background: #FF6B35;
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  color: #fff;
+  font-size: 30rpx;
+}
