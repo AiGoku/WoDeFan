@@ -1,19 +1,14 @@
-const app = getApp();
-
-const BASE_URL = ''; // 部署时填写后端地址，如 http://your-server:8000
-
-function request(url, options = {}) {
+function callFunction(name, data = {}) {
   return new Promise((resolve, reject) => {
-    wx.request({
-      url: `${BASE_URL}${url}`,
-      method: options.method || 'GET',
-      data: options.data || {},
-      header: { 'Content-Type': 'application/json' },
+    wx.cloud.callFunction({
+      name,
+      data,
       success(res) {
-        if (res.statusCode >= 200 && res.statusCode < 300) {
-          resolve(res.data);
+        const result = res.result;
+        if (result.success) {
+          resolve(result.data);
         } else {
-          reject(new Error(res.data?.detail || '请求失败'));
+          reject(new Error(result.error || '请求失败'));
         }
       },
       fail(err) {
@@ -23,39 +18,30 @@ function request(url, options = {}) {
   });
 }
 
-// 菜品相关
 function getCategories() {
-  return request('/api/dishes/categories');
+  return callFunction('getCategories');
 }
 
 function getDishes(params = {}) {
-  const query = Object.entries(params)
-    .filter(([_, v]) => v)
-    .map(([k, v]) => `${k}=${encodeURIComponent(v)}`)
-    .join('&');
-  return request(`/api/dishes/${query ? '?' + query : ''}`);
+  return callFunction('getDishes', params);
 }
 
 function getDishById(id) {
-  return request(`/api/dishes/${id}`);
+  return callFunction('getDishById', { id });
 }
 
-// 订单相关
 function createOrder(openid, dishIds) {
-  return request('/api/orders/', {
-    method: 'POST',
-    data: { creator_openid: openid, dish_ids: dishIds },
-  });
+  return callFunction('createOrder', { dish_ids: dishIds });
 }
 
 function getOrderByShareCode(shareCode) {
-  return request(`/api/orders/${shareCode}`);
+  return callFunction('getOrder', { share_code: shareCode });
 }
 
 function addDishToOrder(shareCode, openid, dishId) {
-  return request(`/api/orders/${shareCode}/add`, {
-    method: 'POST',
-    data: { openid, dish_id: dishId },
+  return callFunction('addDishToOrder', {
+    share_code: shareCode,
+    dish_id: dishId,
   });
 }
 

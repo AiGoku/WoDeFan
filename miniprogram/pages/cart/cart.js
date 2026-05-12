@@ -68,7 +68,7 @@ Page({
     try {
       wx.showLoading({ title: '生成中...' });
       const openid = app.globalData.openid;
-      const dishIds = items.map(item => item.id);
+      const dishIds = items.map(item => item._id);
       const order = await api.createOrder(openid, dishIds);
       wx.hideLoading();
 
@@ -79,6 +79,10 @@ Page({
       wx.hideLoading();
       wx.showToast({ title: '生成失败', icon: 'none' });
     }
+  },
+
+  goToIndex() {
+    wx.switchTab({ url: '/pages/index/index' });
   },
 
   onShareAppMessage() {

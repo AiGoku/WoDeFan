@@ -4,20 +4,20 @@
     <view class="section-title">我选的菜</view>
 
     <view class="cart-list" wx:if="{{items.length > 0}}">
-      <view class="cart-item" wx:for="{{items}}" wx:key="id">
+      <view class="cart-item" wx:for="{{items}}" wx:key="_id">
         <image class="item-img" src="{{item.image_url || '/assets/default-dish.png'}}" mode="aspectFill"/>
         <view class="item-info">
           <view class="item-name">{{item.name}}</view>
           <view class="price">{{item.price}}</view>
         </view>
-        <view class="item-remove" bindtap="onRemoveItem" data-id="{{item.id}}">移除</view>
+        <view class="item-remove" bindtap="onRemoveItem" data-id="{{item._id}}">移除</view>
       </view>
     </view>
 
     <view class="empty" wx:else>
       <text class="empty-icon">🍽</text>
       <text>还没选菜呢</text>
-      <navigator url="/pages/index/index" class="btn-outline" style="margin-top:20rpx">去选菜</navigator>
+      <view class="btn-outline" style="margin-top:20rpx" bindtap="goToIndex">去选菜</view>
     </view>
 
     <!-- 底部操作栏 -->
@@ -40,7 +40,7 @@
     <view class="section-title">朋友的菜单</view>
 
     <view class="cart-list" wx:if="{{shareItems.length > 0}}">
-      <view class="cart-item" wx:for="{{shareItems}}" wx:key="id">
+      <view class="cart-item" wx:for="{{shareItems}}" wx:key="dish_id">
         <image class="item-img" src="{{item.dish_image || '/assets/default-dish.png'}}" mode="aspectFill"/>
         <view class="item-info">
           <view class="item-name">{{item.dish_name}}</view>
@@ -55,7 +55,7 @@
     </view>
 
     <view class="share-actions">
-      <navigator url="/pages/index/index" class="btn-primary">我也去选菜</navigator>
+      <view class="btn-primary" bindtap="goToIndex">我也去选菜</view>
     </view>
   </view>
 </view>

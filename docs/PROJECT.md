@@ -5,8 +5,7 @@
 
 ## 技术栈
 - **前端**：微信小程序原生开发
-- **后端**：Python FastAPI
-- **数据库**：SQLite（可迁移 PostgreSQL）
+- **后端**：微信云开发（云函数 + 云数据库）
 - **数据采集**：Python 爬虫
 
 ## 目录结构
@@ -18,13 +17,17 @@ WoDeFan/
 │   │   ├── detail/       # 菜品详情
 │   │   ├── cart/         # 选菜车/我的菜单
 │   │   └── share/        # 打开分享页面
-│   ├── utils/api.js      # API 请求封装
+│   ├── utils/api.js      # 云函数调用封装
 │   └── app.js/json/wxss  # 小程序入口
-├── backend/              # Python 后端
-│   ├── main.py           # FastAPI 入口
-│   ├── api/              # API 路由
-│   ├── models/           # 数据模型和数据库
-│   └── requirements.txt
+├── cloudfunctions/       # 微信云函数
+│   ├── getCategories/    # 获取分类列表
+│   ├── getDishes/        # 菜品列表（支持筛选）
+│   ├── getDishById/      # 菜品详情
+│   ├── createOrder/      # 创建点菜单
+│   ├── getOrder/         # 获取点菜单
+│   ├── addDishToOrder/   # 追加菜品到点菜单
+│   └── initDatabase/     # 初始化示例数据（一次性）
+├── backend/              # Python 后端（已废弃，保留参考）
 ├── crawler/              # 数据采集
 │   ├── main.py           # 爬虫/示例数据生成
 │   └── output/           # 采集结果
@@ -33,35 +36,37 @@ WoDeFan/
 
 ## 快速开始
 
-### 1. 启动后端
-```bash
-cd backend
-pip install -r requirements.txt
-python main.py
-# API 运行在 http://localhost:8000
-```
+### 1. 配置云开发环境
+1. 在微信公众平台注册小程序，开通云开发
+2. 创建云开发环境，获取环境 ID
+3. 在 `miniprogram/app.js` 中将 `your-env-id` 替换为你的环境 ID
 
-### 2. 导入示例数据
-```bash
-cd crawler
-python main.py --import
-```
+### 2. 部署云函数
+1. 用微信开发者工具打开项目根目录
+2. 右键 `cloudfunctions/initDatabase` → 上传并部署（云端安装依赖）
+3. 右键其他云函数 → 上传并部署
+4. 在云开发控制台调用 `initDatabase` 初始化示例数据
 
-### 3. 小程序开发
-1. 用微信开发者工具打开 `miniprogram/` 目录
-2. 在 `utils/api.js` 中修改 `BASE_URL` 为后端地址
-3. 编译运行
+### 3. 创建云数据库集合
+在云开发控制台创建以下集合：
+- `dishes` — 菜品数据
+- `orders` — 点菜单数据
 
-## API 接口
+### 4. 小程序开发
+1. 微信开发者工具编译运行
+2. 所有 API 调用自动走云函数，无需配置服务器地址
 
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| GET | /api/dishes/ | 菜品列表（支持分类、搜索筛选） |
-| GET | /api/dishes/categories | 获取分类列表 |
-| GET | /api/dishes/{id} | 菜品详情 |
-| POST | /api/orders/ | 创建点菜单 |
-| GET | /api/orders/{share_code} | 获取点菜单 |
-| POST | /api/orders/{share_code}/add | 追加菜品 |
+## 云函数接口
+
+| 云函数 | 参数 | 说明 |
+|--------|------|------|
+| getCategories | 无 | 分类列表 |
+| getDishes | category, season, keyword | 菜品列表 |
+| getDishById | id | 菜品详情 |
+| createOrder | dish_ids[] | 创建点菜单（自动获取 openid） |
+| getOrder | share_code | 获取点菜单 |
+| addDishToOrder | share_code, dish_id | 追加菜品（自动获取 openid） |
+| initDatabase | 无 | 初始化示例数据（幂等） |
 
 ## 数据分类
 | key | 名称 |

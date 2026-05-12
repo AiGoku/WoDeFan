@@ -16,7 +16,7 @@ Page({
   async loadDish(id) {
     try {
       const dish = await api.getDishById(id);
-      const inCart = app.globalData.cart.some(item => item.id === dish.id);
+      const inCart = app.globalData.cart.some(item => item._id === dish._id);
       this.setData({ dish, inCart });
     } catch (e) {
       wx.showToast({ title: '加载失败', icon: 'none' });
@@ -26,7 +26,7 @@ Page({
   onAddToCart() {
     const { dish, inCart } = this.data;
     if (inCart) {
-      app.removeFromCart(dish.id);
+      app.removeFromCart(dish._id);
       this.setData({ inCart: false });
       wx.showToast({ title: '已移除', icon: 'none' });
     } else {
@@ -39,7 +39,7 @@ Page({
     const { dish } = this.data;
     return {
       title: `推荐一道菜：${dish.name}`,
-      path: `/pages/detail/detail?id=${dish.id}`,
+      path: `/pages/detail/detail?id=${dish._id}`,
     };
   },
 });

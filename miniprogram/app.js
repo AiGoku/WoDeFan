@@ -1,17 +1,22 @@
 App({
   globalData: {
-    baseUrl: '', // 后端API地址，部署时填写
     openid: '',
-    cart: [], // 当前选菜列表
+    cart: [],
   },
 
   onLaunch() {
+    if (!wx.cloud) {
+      console.error('请使用 2.2.3 或以上的基础库以使用云能力');
+      return;
+    }
+    wx.cloud.init({
+      env: 'cloud1-d8gdz5z0d911e1fb5',
+      traceUser: true,
+    });
     this.getOpenid();
   },
 
   getOpenid() {
-    // 通过云函数或后端接口获取openid
-    // 这里先用本地生成的临时ID
     let openid = wx.getStorageSync('openid');
     if (!openid) {
       openid = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
@@ -20,26 +25,23 @@ App({
     this.globalData.openid = openid;
   },
 
-  // 从本地缓存恢复购物车
   loadCart() {
     const cart = wx.getStorageSync('current_cart') || [];
     this.globalData.cart = cart;
     return cart;
   },
 
-  // 保存购物车到本地
   saveCart(cart) {
     this.globalData.cart = cart;
     wx.setStorageSync('current_cart', cart);
   },
 
-  // 添加菜品到购物车
   addToCart(dish) {
     const cart = this.globalData.cart;
-    const exists = cart.find(item => item.id === dish.id);
+    const exists = cart.find(item => item._id === dish._id);
     if (!exists) {
       cart.push({
-        id: dish.id,
+        _id: dish._id,
         name: dish.name,
         price: dish.price,
         image_url: dish.image_url,
@@ -51,13 +53,11 @@ App({
     }
   },
 
-  // 从购物车移除
   removeFromCart(dishId) {
-    const cart = this.globalData.cart.filter(item => item.id !== dishId);
+    const cart = this.globalData.cart.filter(item => item._id !== dishId);
     this.saveCart(cart);
   },
 
-  // 清空购物车
   clearCart() {
     this.saveCart([]);
   },

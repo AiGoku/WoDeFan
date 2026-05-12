@@ -15,7 +15,7 @@
 
     <!-- 已选菜品列表 -->
     <view class="dish-list">
-      <view class="dish-item" wx:for="{{order.items}}" wx:key="id">
+      <view class="dish-item" wx:for="{{order.items}}" wx:key="dish_id">
         <image class="dish-img" src="{{item.dish_image || '/assets/default-dish.png'}}" mode="aspectFill"/>
         <view class="dish-info">
           <view class="dish-name">{{item.dish_name}}</view>
@@ -50,7 +50,7 @@
 
     <!-- 菜品列表 -->
     <scroll-view scroll-y class="panel-dishes">
-      <view class="panel-dish-item" wx:for="{{dishes}}" wx:key="id"
+      <view class="panel-dish-item" wx:for="{{dishes}}" wx:key="_id"
             bindtap="onAddDish" data-dish="{{item}}">
         <image class="panel-dish-img" src="{{item.image_url || '/assets/default-dish.png'}}" mode="aspectFill"/>
         <view class="panel-dish-info">

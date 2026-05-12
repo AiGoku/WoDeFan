@@ -140,3 +140,39 @@
   padding: 100rpx;
   color: #999;
 }
+
+/* 浮动购物车按钮 */
+.float-cart {
+  position: fixed;
+  right: 40rpx;
+  bottom: 120rpx;
+  width: 100rpx;
+  height: 100rpx;
+  background: #FF6B35;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4rpx 16rpx rgba(255, 107, 53, 0.4);
+  z-index: 100;
+}
+
+.cart-icon {
+  font-size: 48rpx;
+}
+
+.cart-badge {
+  position: absolute;
+  top: -8rpx;
+  right: -8rpx;
+  min-width: 36rpx;
+  height: 36rpx;
+  background: #FF3B30;
+  color: #fff;
+  font-size: 22rpx;
+  border-radius: 18rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8rpx;
+}

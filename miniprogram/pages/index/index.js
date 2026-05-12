@@ -8,6 +8,7 @@ Page({
     activeCategory: '',
     dishes: [],
     loading: true,
+    cartCount: 0,
   },
 
   onLoad() {
@@ -15,7 +16,8 @@ Page({
   },
 
   onShow() {
-    app.loadCart();
+    const cart = app.loadCart();
+    this.setData({ cartCount: cart.length });
   },
 
   async loadData() {
@@ -26,7 +28,9 @@ Page({
         api.getDishes(),
       ]);
 
-      const recommended = allDishes.filter(d => d.season_tag === 'spring');
+      const seasonMap = { 0: 'winter', 1: 'winter', 2: 'spring', 3: 'spring', 4: 'spring', 5: 'summer', 6: 'summer', 7: 'summer', 8: 'autumn', 9: 'autumn', 10: 'autumn', 11: 'winter' };
+      const currentSeason = seasonMap[new Date().getMonth()];
+      const recommended = allDishes.filter(d => d.season_tag === currentSeason);
 
       this.setData({
         categories: [{ key: '', name: '全部' }, ...categories],
@@ -62,7 +66,16 @@ Page({
 
   onAddToCart(e) {
     const dish = e.currentTarget.dataset.dish;
+    if (!dish || !dish._id) {
+      wx.showToast({ title: '数据异常', icon: 'none' });
+      return;
+    }
     app.addToCart(dish);
+    this.setData({ cartCount: app.globalData.cart.length });
+  },
+
+  goToCart() {
+    wx.switchTab({ url: '/pages/cart/cart' });
   },
 
   // 转发分享

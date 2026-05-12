@@ -32,6 +32,13 @@ desktop.ini
 # WeChat mini program
 miniprogram/node_modules/
 miniprogram/.miniprogram_npm/
+*.private.config.json
+
+# Dish images (stored in cloud storage)
+miniprogram/assets/dishes/
+
+# Cloud functions
+cloudfunctions/*/node_modules/
 
 # Crawler output (regenerated)
 crawler/output/

@@ -11,13 +11,42 @@
       {{dish.description}}
     </view>
 
+    <!-- 标签区 -->
     <view class="dish-meta">
-      <view class="meta-tag" wx:if="{{dish.season_tag}}">当季推荐</view>
+      <view class="meta-tag season" wx:if="{{dish.season_tag}}">当季推荐</view>
       <view class="meta-tag">{{dish.category === 'cold_dish' ? '凉菜' :
         dish.category === 'hot_dish' ? '热菜' :
         dish.category === 'soup' ? '汤羹' :
         dish.category === 'staple' ? '主食' :
         dish.category === 'dessert' ? '甜品小吃' : '饮品'}}</view>
+      <view class="meta-tag" wx:if="{{dish.difficulty === 'easy'}}">简单</view>
+      <view class="meta-tag" wx:elif="{{dish.difficulty === 'medium'}}">中等</view>
+      <view class="meta-tag difficulty-hard" wx:elif="{{dish.difficulty === 'hard'}}">较难</view>
+    </view>
+
+    <!-- 烹饪信息 -->
+    <view class="dish-info-row">
+      <text class="info-text" wx:if="{{dish.cooking_time}}">烹饪时间：{{dish.cooking_time}} 分钟</text>
+      <text class="info-text" wx:if="{{dish.spiciness === 0}}">辣度：不辣</text>
+      <text class="info-text" wx:elif="{{dish.spiciness === 1}}">辣度：微辣</text>
+      <text class="info-text" wx:elif="{{dish.spiciness === 2}}">辣度：中辣</text>
+      <text class="info-text" wx:elif="{{dish.spiciness === 3}}">辣度：特辣</text>
+    </view>
+
+    <!-- 食材 -->
+    <view class="dish-section" wx:if="{{dish.ingredients && dish.ingredients.length > 0}}">
+      <view class="section-label">主要食材</view>
+      <view class="ingredient-list">
+        <view class="ingredient-tag" wx:for="{{dish.ingredients}}" wx:key="*this">{{item}}</view>
+      </view>
+    </view>
+
+    <!-- 标签 -->
+    <view class="dish-section" wx:if="{{dish.tags && dish.tags.length > 0}}">
+      <view class="section-label">标签</view>
+      <view class="tag-list">
+        <view class="tag-item" wx:for="{{dish.tags}}" wx:key="*this">{{item}}</view>
+      </view>
     </view>
   </view>
 
