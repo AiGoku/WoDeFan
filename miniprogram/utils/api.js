@@ -1,14 +1,20 @@
-function callFunction(name, data = {}) {
+const BASE_URL = 'http://127.0.0.1:8000/api';
+
+function request(method, path, data) {
   return new Promise((resolve, reject) => {
-    wx.cloud.callFunction({
-      name,
+    const app = getApp();
+    const baseUrl = (app && app.globalData && app.globalData.baseUrl) || BASE_URL;
+
+    wx.request({
+      url: `${baseUrl}${path}`,
+      method,
       data,
+      header: { 'Content-Type': 'application/json' },
       success(res) {
-        const result = res.result;
-        if (result.success) {
-          resolve(result.data);
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          resolve(res.data);
         } else {
-          reject(new Error(result.error || '请求失败'));
+          reject(new Error(res.data.detail || `请求失败(${res.statusCode})`));
         }
       },
       fail(err) {
@@ -19,30 +25,31 @@ function callFunction(name, data = {}) {
 }
 
 function getCategories() {
-  return callFunction('getCategories');
+  return request('GET', '/dishes/categories');
 }
 
 function getDishes(params = {}) {
-  return callFunction('getDishes', params);
+  const qs = Object.entries(params)
+    .filter(([, v]) => v != null && v !== '')
+    .map(([k, v]) => `${k}=${encodeURIComponent(v)}`)
+    .join('&');
+  return request('GET', `/dishes/${qs ? '?' + qs : ''}`);
 }
 
 function getDishById(id) {
-  return callFunction('getDishById', { id });
+  return request('GET', `/dishes/${id}`);
 }
 
 function createOrder(openid, dishIds) {
-  return callFunction('createOrder', { dish_ids: dishIds });
+  return request('POST', '/orders/', { creator_openid: openid, dish_ids: dishIds });
 }
 
 function getOrderByShareCode(shareCode) {
-  return callFunction('getOrder', { share_code: shareCode });
+  return request('GET', `/orders/${shareCode}`);
 }
 
 function addDishToOrder(shareCode, openid, dishId) {
-  return callFunction('addDishToOrder', {
-    share_code: shareCode,
-    dish_id: dishId,
-  });
+  return request('POST', `/orders/${shareCode}/add`, { openid, dish_id: dishId });
 }
 
 module.exports = {

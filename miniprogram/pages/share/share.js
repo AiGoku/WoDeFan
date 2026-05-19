@@ -58,7 +58,7 @@ Page({
     const dish = e.currentTarget.dataset.dish;
     const { order } = this.data;
     try {
-      await api.addDishToOrder(order.share_code, app.globalData.openid, dish._id);
+      await api.addDishToOrder(order.share_code, app.globalData.openid, dish.id);
       wx.showToast({ title: '已加入' });
       this.loadOrder(order.share_code);
     } catch (e) {

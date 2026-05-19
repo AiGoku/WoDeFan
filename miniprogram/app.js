@@ -1,18 +1,11 @@
 App({
   globalData: {
+    baseUrl: 'http://127.0.0.1:8000/api',
     openid: '',
     cart: [],
   },
 
   onLaunch() {
-    if (!wx.cloud) {
-      console.error('请使用 2.2.3 或以上的基础库以使用云能力');
-      return;
-    }
-    wx.cloud.init({
-      env: 'cloud1-d8gdz5z0d911e1fb5',
-      traceUser: true,
-    });
     this.getOpenid();
   },
 
@@ -38,10 +31,10 @@ App({
 
   addToCart(dish) {
     const cart = this.globalData.cart;
-    const exists = cart.find(item => item._id === dish._id);
+    const exists = cart.find(item => item.id === dish.id);
     if (!exists) {
       cart.push({
-        _id: dish._id,
+        id: dish.id,
         name: dish.name,
         price: dish.price,
         image_url: dish.image_url,
@@ -54,7 +47,7 @@ App({
   },
 
   removeFromCart(dishId) {
-    const cart = this.globalData.cart.filter(item => item._id !== dishId);
+    const cart = this.globalData.cart.filter(item => item.id !== dishId);
     this.saveCart(cart);
   },
 

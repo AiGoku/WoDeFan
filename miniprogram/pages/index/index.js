@@ -66,7 +66,7 @@ Page({
 
   onAddToCart(e) {
     const dish = e.currentTarget.dataset.dish;
-    if (!dish || !dish._id) {
+    if (!dish || !dish.id) {
       wx.showToast({ title: '数据异常', icon: 'none' });
       return;
     }

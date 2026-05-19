@@ -68,7 +68,7 @@ Page({
     try {
       wx.showLoading({ title: '生成中...' });
       const openid = app.globalData.openid;
-      const dishIds = items.map(item => item._id);
+      const dishIds = items.map(item => item.id);
       const order = await api.createOrder(openid, dishIds);
       wx.hideLoading();
 

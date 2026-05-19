@@ -50,7 +50,7 @@
 
     <!-- 菜品列表 -->
     <scroll-view scroll-y class="panel-dishes">
-      <view class="panel-dish-item" wx:for="{{dishes}}" wx:key="_id"
+      <view class="panel-dish-item" wx:for="{{dishes}}" wx:key="id"
             bindtap="onAddDish" data-dish="{{item}}">
         <image class="panel-dish-img" src="{{item.image_url || '/assets/default-dish.png'}}" mode="aspectFill"/>
         <view class="panel-dish-info">
