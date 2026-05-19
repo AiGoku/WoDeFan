@@ -1,11 +1,5 @@
 /**
  * 图片上传工具页
- * 使用方式：
- * 1. 在微信开发者工具的云开发控制台 → 云存储 → 手动上传图片到 dishes/ 目录
- * 2. 文件名格式: {filename}.jpg (如 pat_huanggua.jpg)
- * 3. 回到此页面，点击"更新数据库"自动关联图片到菜品
- *
- * 或者使用"选择图片上传"功能，从本地选择图片逐个上传
  */
 Page({
   data: {
@@ -31,7 +25,7 @@ Page({
       });
 
       const tempFiles = res.tempFilePaths;
-      this.setData({ uploading: true, total: tempFiles.length, progress: 0, status: 'uploading...' });
+      this.setData({ uploading: true, total: tempFiles.length, progress: 0, status: '上传中...' });
 
       const fileMap = {};
       for (let i = 0; i < tempFiles.length; i++) {
@@ -40,7 +34,7 @@ Page({
         const imageData = fs.readFileSync(tempPath, 'base64');
         const namePart = tempPath.split('/').pop().split('.')[0];
 
-        this.setData({ status: `upload ${i + 1}/${tempFiles.length}: ${namePart}`, progress: i + 1 });
+        this.setData({ status: `上传 ${i + 1}/${tempFiles.length}: ${namePart}`, progress: i + 1 });
 
         const result = await wx.cloud.callFunction({
           name: 'uploadImages',
@@ -56,50 +50,41 @@ Page({
         fileMap,
         fileCount: Object.keys(fileMap).length,
         uploading: false,
-        status: `done, ${Object.keys(fileMap).length} uploaded`,
+        status: `上传完成, ${Object.keys(fileMap).length} 张`,
       });
-      wx.showToast({ title: 'upload ok', icon: 'success' });
+      wx.showToast({ title: '上传完成', icon: 'success' });
     } catch (e) {
-      this.setData({ uploading: false, status: 'fail: ' + e.message });
+      this.setData({ uploading: false, status: '上传失败: ' + e.message });
     }
   },
 
-  // 从云存储自动关联
+  // 自动关联：全部在云函数中完成（有管理员权限，可访问控制台上传的文件）
   async onAutoLink() {
-    this.setData({ status: 'listing files...' });
+    this.setData({ status: '正在关联云存储图片...', uploading: true });
     try {
       const result = await wx.cloud.callFunction({
         name: 'uploadImages',
-        data: { mode: 'listFiles' },
+        data: { mode: 'autoLink' },
       });
 
-      if (!result.result.success) {
-        this.setData({ status: 'list fail: ' + result.result.error });
+      const res = result.result;
+      console.log('autoLink result:', JSON.stringify(res));
+
+      if (!res.success) {
+        this.setData({ status: '关联失败: ' + res.error, uploading: false });
         return;
       }
 
-      const files = result.result.files;
-      this.setData({ status: `found ${files.length} files, updating db...` });
-
-      const fileMap = {};
-      for (const f of files) {
-        const name = f.cloudPath.split('/').pop().replace('.jpg', '').replace('.png', '');
-        fileMap[name] = f.fileID;
-      }
-
-      const updateResult = await wx.cloud.callFunction({
-        name: 'uploadImages',
-        data: { mode: 'updateDB', fileMap },
+      const msg = `完成! ${res.updated}/${res.total} 菜品已关联图片`;
+      this.setData({
+        status: msg,
+        uploading: false,
+        fileCount: res.updated,
       });
-
-      if (updateResult.result.success) {
-        this.setData({ status: `done! ${updateResult.result.updated}/${updateResult.result.total} updated` });
-        wx.showToast({ title: 'ok', icon: 'success' });
-      } else {
-        this.setData({ status: 'update fail: ' + updateResult.result.error });
-      }
+      wx.showToast({ title: `${res.updated} 张已关联`, icon: 'success' });
     } catch (e) {
-      this.setData({ status: 'fail: ' + e.message });
+      console.error('autoLink error:', e);
+      this.setData({ status: '关联失败: ' + e.message, uploading: false });
     }
   },
 
@@ -107,11 +92,11 @@ Page({
   async onUpdateDB() {
     const { fileMap, fileCount } = this.data;
     if (fileCount === 0) {
-      wx.showToast({ title: 'upload first', icon: 'none' });
+      wx.showToast({ title: '请先上传图片', icon: 'none' });
       return;
     }
 
-    this.setData({ status: 'updating db...' });
+    this.setData({ status: '更新数据库...' });
     try {
       const result = await wx.cloud.callFunction({
         name: 'uploadImages',
@@ -119,13 +104,13 @@ Page({
       });
 
       if (result.result.success) {
-        this.setData({ status: `done! ${result.result.updated}/${result.result.total} updated` });
-        wx.showToast({ title: 'ok', icon: 'success' });
+        this.setData({ status: `完成! ${result.result.updated}/${result.result.total} 已更新` });
+        wx.showToast({ title: '更新成功', icon: 'success' });
       } else {
-        this.setData({ status: 'fail: ' + result.result.error });
+        this.setData({ status: '更新失败: ' + result.result.error });
       }
     } catch (e) {
-      this.setData({ status: 'fail: ' + e.message });
+      this.setData({ status: '更新失败: ' + e.message });
     }
   },
 });

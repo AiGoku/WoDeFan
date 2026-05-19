@@ -1,15 +1,21 @@
 """
 菜品图片下载器
-从免费图片源下载真实菜品图片，供上传到微信云存储
+从 Pexels API 下载真实菜品图片，供上传到微信云存储
+需要设置环境变量 PEXELS_API_KEY（免费注册: https://www.pexels.com/api/）
 """
 import os
+import json
 import urllib.request
 import urllib.parse
 import ssl
+import time
 
 IMAGES_DIR = os.path.join(os.path.dirname(__file__), "images")
 
-# 菜品文件名 → Unsplash 搜索关键词
+# Pexels API Key（从环境变量读取，或直接填写在引号内）
+PEXELS_API_KEY = os.environ.get("PEXELS_API_KEY", "ov266eIlIgbMdsdBuUbOmNz7ZKlZnZtdnIvqOEHUBEzHQDUEJiTHf2He")
+
+# 菜品文件名 → Pexels 搜索关键词
 DISH_KEYWORDS = {
     # 凉菜
     "pat_huanggua": "smashed cucumber salad",
@@ -76,18 +82,48 @@ DISH_KEYWORDS = {
 }
 
 
+def search_pexels(keyword):
+    """通过 Pexels API 搜索图片，返回第一张图片的下载 URL"""
+    if not PEXELS_API_KEY:
+        print("  ERROR: 请设置 PEXELS_API_KEY 环境变量或在脚本中填写")
+        return None
+
+    url = f"https://api.pexels.com/v1/search?query={urllib.parse.quote(keyword)}&per_page=1&orientation=landscape"
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+    req = urllib.request.Request(url, headers={
+        "Authorization": PEXELS_API_KEY,
+        "User-Agent": "Mozilla/5.0",
+    })
+    try:
+        with urllib.request.urlopen(req, timeout=15, context=ctx) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            photos = data.get("photos", [])
+            if photos:
+                # 使用 medium 尺寸（约 400px 宽），适合小程序展示
+                return photos[0]["src"]["medium"]
+    except Exception as e:
+        print(f"  search error: {e}")
+    return None
+
+
 def download_image(filename, keyword):
     filepath = os.path.join(IMAGES_DIR, f"{filename}.jpg")
     if os.path.exists(filepath):
         print(f"  skip {filename} (exists)")
         return True
 
-    url = f"https://source.unsplash.com/400x300/?{urllib.parse.quote(keyword)}"
+    image_url = search_pexels(keyword)
+    if not image_url:
+        print(f"  fail {filename} (no result for '{keyword}')")
+        return False
+
     try:
         ctx = ssl.create_default_context()
         ctx.check_hostname = False
         ctx.verify_mode = ssl.CERT_NONE
-        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        req = urllib.request.Request(image_url, headers={"User-Agent": "Mozilla/5.0"})
         with urllib.request.urlopen(req, timeout=15, context=ctx) as resp:
             data = resp.read()
             if len(data) > 1000:
@@ -104,18 +140,26 @@ def download_image(filename, keyword):
 
 
 def main():
+    if not PEXELS_API_KEY:
+        print("ERROR: 请先设置 PEXELS_API_KEY")
+        print("  方式1: 设置环境变量  set PEXELS_API_KEY=你的key")
+        print("  方式2: 在脚本中填写  PEXELS_API_KEY = '你的key'")
+        print("  免费注册: https://www.pexels.com/api/")
+        return
+
     os.makedirs(IMAGES_DIR, exist_ok=True)
     total = len(DISH_KEYWORDS)
     success = 0
     failed = []
 
-    print(f"Downloading {total} images...")
+    print(f"Downloading {total} images from Pexels...")
     for filename, keyword in DISH_KEYWORDS.items():
         print(f"[{success + len(failed) + 1}/{total}] {keyword}")
         if download_image(filename, keyword):
             success += 1
         else:
             failed.append(filename)
+        time.sleep(0.5)  # Pexels API 限速
 
     print(f"\nDone: {success} ok, {len(failed)} failed")
     if failed:

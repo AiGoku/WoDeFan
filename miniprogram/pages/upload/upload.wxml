@@ -3,8 +3,8 @@
 
   <view class="section">
     <view class="section-title">方式一：从云存储自动关联</view>
-    <view class="desc">先在云开发控制台 → 云存储 → 上传图片到 dishes/ 目录，然后点击下方按钮自动关联到数据库</view>
-    <button class="btn" bindtap="onAutoLink">自动关联云存储图片</button>
+    <view class="desc">先在云开发控制台 → 云存储 → 上传图片到 dishes/ 目录（文件名如 fanqie_chaodan.jpg），然后点击下方按钮自动关联到数据库</view>
+    <button class="btn" bindtap="onAutoLink" disabled="{{uploading}}">自动关联云存储图片</button>
   </view>
 
   <view class="section">
