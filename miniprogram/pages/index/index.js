@@ -30,13 +30,11 @@ Page({
         categories: [{ key: '', name: '全部' }, ...categories],
       });
 
-      // 先加载当季推荐（少量数据）
       const recRes = await api.getDishes({ season: currentSeason, limit: 6 });
       this.setData({
         recommended: recRes.items.map(d => ({ ...d, image_url: api.resolveImageUrl(d.image_url) })),
       });
 
-      // 再加载默认分类（第一批）
       this.loadDishesByCategory('');
     } catch (e) {
       console.error('加载失败', e);
