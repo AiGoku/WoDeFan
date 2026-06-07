@@ -1,0 +1,4 @@
+<view class="page-test">
+  <button bindtap="onTest">测试连接</button>
+  <view class="result">{{result}}</view>
+</view>

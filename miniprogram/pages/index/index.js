@@ -21,42 +21,46 @@ Page({
   },
 
   async loadData() {
-    this.setData({ loading: true });
     try {
       const categories = await api.getCategories();
-
       const seasonMap = { 0: 'winter', 1: 'winter', 2: 'spring', 3: 'spring', 4: 'spring', 5: 'summer', 6: 'summer', 7: 'summer', 8: 'autumn', 9: 'autumn', 10: 'autumn', 11: 'winter' };
       const currentSeason = seasonMap[new Date().getMonth()];
 
       this.setData({
         categories: [{ key: '', name: '全部' }, ...categories],
-        loading: false,
       });
 
-      // 分批加载菜品，避免一次性加载过多导致超时
-      this.loadDishesByCategory('', currentSeason);
+      // 先加载当季推荐（少量数据）
+      const rec = await api.getDishes({ season: currentSeason, limit: 10 });
+      this.setData({
+        recommended: rec.map(d => ({ ...d, image_url: api.resolveImageUrl(d.image_url) })),
+      });
+
+      // 再加载默认分类（第一批）
+      this.loadDishesByCategory('');
     } catch (e) {
       console.error('加载失败', e);
       this.setData({ loading: false });
-      wx.showToast({ title: '加载失败', icon: 'none' });
     }
   },
 
-  async loadDishesByCategory(category, currentSeason) {
+  async loadDishesByCategory(category) {
+    this.setData({ loading: true, dishes: [] });
     try {
-      const params = category ? { category } : {};
-      const allDishes = await api.getAllDishes(params);
-
-      const dishes = allDishes.map(d => ({
-        ...d,
+      const params = category ? { category, limit: 10 } : { limit: 10 };
+      const list = await api.getDishes(params);
+      const dishes = list.map(d => ({
+        id: d.id,
+        name: d.name,
+        price: d.price,
         image_url: api.resolveImageUrl(d.image_url),
+        description: d.description,
+        season_tag: d.season_tag,
       }));
-
-      const recommended = currentSeason ? dishes.filter(d => d.season_tag === currentSeason) : [];
-
-      this.setData({ dishes, recommended });
+      this.setData({ dishes, loading: false });
     } catch (e) {
       console.error('加载菜品失败', e);
+      this.setData({ loading: false });
     }
   },
 
@@ -73,10 +77,7 @@ Page({
 
   onAddToCart(e) {
     const dish = e.currentTarget.dataset.dish;
-    if (!dish || !dish.id) {
-      wx.showToast({ title: '数据异常', icon: 'none' });
-      return;
-    }
+    if (!dish || !dish.id) return;
     app.addToCart(dish);
     this.setData({ cartCount: app.globalData.cart.length });
   },
@@ -85,11 +86,7 @@ Page({
     wx.switchTab({ url: '/pages/cart/cart' });
   },
 
-  // 转发分享
   onShareAppMessage() {
-    return {
-      title: '今晚吃啥？来看看我的菜单',
-      path: '/pages/index/index',
-    };
+    return { title: '今晚吃啥？来看看我的菜单', path: '/pages/index/index' };
   },
 });

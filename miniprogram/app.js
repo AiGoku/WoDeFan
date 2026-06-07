@@ -6,10 +6,6 @@ App({
   },
 
   onLaunch() {
-    this.getOpenid();
-  },
-
-  getOpenid() {
     let openid = wx.getStorageSync('openid');
     if (!openid) {
       openid = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
@@ -31,14 +27,8 @@ App({
 
   addToCart(dish) {
     const cart = this.globalData.cart;
-    const exists = cart.find(item => item.id === dish.id);
-    if (!exists) {
-      cart.push({
-        id: dish.id,
-        name: dish.name,
-        price: dish.price,
-        image_url: dish.image_url,
-      });
+    if (!cart.find(item => item.id === dish.id)) {
+      cart.push({ id: dish.id, name: dish.name, price: dish.price, image_url: dish.image_url });
       this.saveCart(cart);
       wx.showToast({ title: '已加入', icon: 'success' });
     } else {
@@ -47,8 +37,7 @@ App({
   },
 
   removeFromCart(dishId) {
-    const cart = this.globalData.cart.filter(item => item.id !== dishId);
-    this.saveCart(cart);
+    this.saveCart(this.globalData.cart.filter(item => item.id !== dishId));
   },
 
   clearCart() {

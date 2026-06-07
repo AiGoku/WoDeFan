@@ -5,7 +5,8 @@
     "pages/detail/detail",
     "pages/cart/cart",
     "pages/share/share",
-    "pages/upload/upload"
+    "pages/upload/upload",
+    "pages/test/test"
   ],
   "window": {
     "navigationBarBackgroundColor": "#FF6B35",
