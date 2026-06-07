@@ -20,6 +20,13 @@ Page({
   async loadOrder(shareCode) {
     try {
       const order = await api.getOrderByShareCode(shareCode);
+      // 解析订单中菜品图片 URL
+      if (order.items) {
+        order.items = order.items.map(item => ({
+          ...item,
+          dish_image: api.resolveImageUrl(item.dish_image),
+        }));
+      }
       this.setData({ order, loading: false });
     } catch (e) {
       this.setData({ loading: false });
@@ -30,10 +37,14 @@ Page({
   // 打开选菜面板
   async onOpenAddPanel() {
     if (this.data.categories.length === 0) {
-      const [categories, dishes] = await Promise.all([
+      const [categories, allDishes] = await Promise.all([
         api.getCategories(),
         api.getDishes(),
       ]);
+      const dishes = allDishes.map(d => ({
+        ...d,
+        image_url: api.resolveImageUrl(d.image_url),
+      }));
       this.setData({ categories: [{ key: '', name: '全部' }, ...categories], dishes });
     }
     this.setData({ showAddPanel: true });
@@ -46,11 +57,14 @@ Page({
   onCategoryTap(e) {
     const key = e.currentTarget.dataset.key;
     this.setData({ activeCategory: key });
-    if (key) {
-      api.getDishes({ category: key }).then(dishes => this.setData({ dishes }));
-    } else {
-      api.getDishes().then(dishes => this.setData({ dishes }));
-    }
+    const fetch = key ? api.getDishes({ category: key }) : api.getDishes();
+    fetch.then(allDishes => {
+      const dishes = allDishes.map(d => ({
+        ...d,
+        image_url: api.resolveImageUrl(d.image_url),
+      }));
+      this.setData({ dishes });
+    });
   },
 
   // 追加菜品到点菜单

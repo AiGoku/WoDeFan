@@ -27,8 +27,12 @@ Page({
   async loadShareOrder(shareCode) {
     try {
       const order = await api.getOrderByShareCode(shareCode);
+      const shareItems = (order.items || []).map(item => ({
+        ...item,
+        dish_image: api.resolveImageUrl(item.dish_image),
+      }));
       this.setData({
-        shareItems: order.items,
+        shareItems,
         shareTotalPrice: order.total_price,
       });
     } catch (e) {

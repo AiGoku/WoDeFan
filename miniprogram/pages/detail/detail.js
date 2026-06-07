@@ -16,6 +16,7 @@ Page({
   async loadDish(id) {
     try {
       const dish = await api.getDishById(id);
+      dish.image_url = api.resolveImageUrl(dish.image_url);
       const inCart = app.globalData.cart.some(item => item.id === dish.id);
       this.setData({ dish, inCart });
     } catch (e) {

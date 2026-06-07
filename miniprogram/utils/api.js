@@ -24,6 +24,21 @@ function request(method, path, data) {
   });
 }
 
+/**
+ * 将相对图片路径转为完整 URL
+ * @param {string} path - 如 /static/images/fanqie_chaodan.jpg
+ * @returns {string} 完整 URL
+ */
+function resolveImageUrl(path) {
+  if (!path) return '';
+  if (path.startsWith('http')) return path;
+  const app = getApp();
+  const baseUrl = (app && app.globalData && app.globalData.baseUrl) || BASE_URL;
+  // baseUrl 是 /api 结尾，取主机部分
+  const host = baseUrl.replace(/\/api\/?$/, '');
+  return `${host}${path}`;
+}
+
 function getCategories() {
   return request('GET', '/dishes/categories');
 }
@@ -59,4 +74,5 @@ module.exports = {
   createOrder,
   getOrderByShareCode,
   addDishToOrder,
+  resolveImageUrl,
 };

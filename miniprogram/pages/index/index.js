@@ -28,14 +28,20 @@ Page({
         api.getDishes(),
       ]);
 
+      // 解析图片 URL 为完整地址
+      const dishes = allDishes.map(d => ({
+        ...d,
+        image_url: api.resolveImageUrl(d.image_url),
+      }));
+
       const seasonMap = { 0: 'winter', 1: 'winter', 2: 'spring', 3: 'spring', 4: 'spring', 5: 'summer', 6: 'summer', 7: 'summer', 8: 'autumn', 9: 'autumn', 10: 'autumn', 11: 'winter' };
       const currentSeason = seasonMap[new Date().getMonth()];
-      const recommended = allDishes.filter(d => d.season_tag === currentSeason);
+      const recommended = dishes.filter(d => d.season_tag === currentSeason);
 
       this.setData({
         categories: [{ key: '', name: '全部' }, ...categories],
         recommended,
-        dishes: allDishes,
+        dishes,
         loading: false,
       });
     } catch (e) {
@@ -48,15 +54,14 @@ Page({
   onCategoryTap(e) {
     const key = e.currentTarget.dataset.key;
     this.setData({ activeCategory: key });
-    if (key) {
-      api.getDishes({ category: key }).then(dishes => {
-        this.setData({ dishes });
-      });
-    } else {
-      api.getDishes().then(dishes => {
-        this.setData({ dishes });
-      });
-    }
+    const fetch = key ? api.getDishes({ category: key }) : api.getDishes();
+    fetch.then(allDishes => {
+      const dishes = allDishes.map(d => ({
+        ...d,
+        image_url: api.resolveImageUrl(d.image_url),
+      }));
+      this.setData({ dishes });
+    });
   },
 
   onDishTap(e) {

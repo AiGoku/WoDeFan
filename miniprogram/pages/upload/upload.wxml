@@ -1,31 +1,32 @@
 <view class="page-upload">
-  <view class="title">菜品图片上传工具</view>
+  <view class="title">菜品图片管理</view>
 
   <view class="section">
-    <view class="section-title">方式一：从云存储自动关联</view>
-    <view class="desc">先在云开发控制台 → 云存储 → 上传图片到 dishes/ 目录（文件名如 fanqie_chaodan.jpg），然后点击下方按钮自动关联到数据库</view>
-    <button class="btn" bindtap="onAutoLink" disabled="{{uploading}}">自动关联云存储图片</button>
+    <view class="section-title">图片导入方式</view>
+    <view class="desc">菜品图片已通过后端脚本导入，存储在服务器的 static/images/ 目录中。</view>
+    <view class="desc">如需更新图片，请按以下步骤操作：</view>
   </view>
 
   <view class="section">
-    <view class="section-title">方式二：从本地选择上传</view>
-    <view class="desc">选择手机相册中的图片，逐批上传到云存储</view>
-    <button class="btn" bindtap="onChooseAndUpload" disabled="{{uploading}}">选择图片上传</button>
+    <view class="section-title">1. 下载图片</view>
+    <view class="desc">运行爬虫脚本下载新图片：</view>
+    <view class="code">python crawler/download_images.py</view>
   </view>
 
-  <view class="section" wx:if="{{fileCount > 0}}">
-    <view class="section-title">方式三：手动更新数据库</view>
-    <view class="desc">使用已上传的 {{fileCount}} 张图片更新数据库</view>
-    <button class="btn" bindtap="onUpdateDB">更新数据库</button>
+  <view class="section">
+    <view class="section-title">2. 导入到后端</view>
+    <view class="desc">运行导入脚本，将图片复制到 static 目录并更新数据库：</view>
+    <view class="code">python backend/scripts/import_images.py</view>
+  </view>
+
+  <view class="section">
+    <view class="section-title">3. 重启后端</view>
+    <view class="desc">重启 FastAPI 服务使更改生效：</view>
+    <view class="code">cd backend && uvicorn main:app --reload</view>
   </view>
 
   <view class="status" wx:if="{{status}}">
     <text>{{status}}</text>
-  </view>
-
-  <view class="progress" wx:if="{{uploading}}">
-    <progress percent="{{progress / total * 100}}" activeColor="#FF6B35" stroke-width="6"/>
-    <text>{{progress}} / {{total}}</text>
   </view>
 
   <view class="tips">
