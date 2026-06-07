@@ -31,9 +31,9 @@ Page({
       });
 
       // 先加载当季推荐（少量数据）
-      const rec = await api.getDishes({ season: currentSeason, limit: 10 });
+      const recRes = await api.getDishes({ season: currentSeason, limit: 6 });
       this.setData({
-        recommended: rec.map(d => ({ ...d, image_url: api.resolveImageUrl(d.image_url) })),
+        recommended: recRes.items.map(d => ({ ...d, image_url: api.resolveImageUrl(d.image_url) })),
       });
 
       // 再加载默认分类（第一批）
@@ -48,16 +48,15 @@ Page({
     this.setData({ loading: true, dishes: [] });
     try {
       const params = category ? { category, limit: 10 } : { limit: 10 };
-      const list = await api.getDishes(params);
-      const dishes = list.map(d => ({
+      const res = await api.getDishes(params);
+      const dishes = res.items.map(d => ({
         id: d.id,
         name: d.name,
         price: d.price,
         image_url: api.resolveImageUrl(d.image_url),
         description: d.description,
-        season_tag: d.season_tag,
       }));
-      this.setData({ dishes, loading: false });
+      this.setData({ dishes, loading: false, hasMore: res.has_more });
     } catch (e) {
       console.error('加载菜品失败', e);
       this.setData({ loading: false });

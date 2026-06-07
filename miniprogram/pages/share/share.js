@@ -37,11 +37,11 @@ Page({
   // 打开选菜面板
   async onOpenAddPanel() {
     if (this.data.categories.length === 0) {
-      const [categories, allDishes] = await Promise.all([
+      const [categories, dishesRes] = await Promise.all([
         api.getCategories(),
-        api.getAllDishes(),
+        api.getDishes({ limit: 10 }),
       ]);
-      const dishes = allDishes.map(d => ({
+      const dishes = dishesRes.items.map(d => ({
         ...d,
         image_url: api.resolveImageUrl(d.image_url),
       }));
@@ -57,9 +57,9 @@ Page({
   onCategoryTap(e) {
     const key = e.currentTarget.dataset.key;
     this.setData({ activeCategory: key });
-    const fetch = key ? api.getAllDishes({ category: key }) : api.getAllDishes();
-    fetch.then(allDishes => {
-      const dishes = allDishes.map(d => ({
+    const params = key ? { category: key, limit: 10 } : { limit: 10 };
+    api.getDishes(params).then(res => {
+      const dishes = res.items.map(d => ({
         ...d,
         image_url: api.resolveImageUrl(d.image_url),
       }));

@@ -43,16 +43,14 @@ function getCategories() {
   return request('GET', '/dishes/categories');
 }
 
-function getDishes(params = {}) {
+async function getDishes(params = {}) {
   const qs = Object.entries(params)
     .filter(([, v]) => v != null && v !== '')
     .map(([k, v]) => `${k}=${encodeURIComponent(v)}`)
     .join('&');
-  return request('GET', `/dishes/${qs ? '?' + qs : ''}`);
-}
-
-function getAllDishes(params = {}) {
-  return getDishes({ ...params, limit: 100 });
+  const res = await request('GET', `/dishes/${qs ? '?' + qs : ''}`);
+  // 返回 { items, total, limit, offset, has_more }
+  return res;
 }
 
 function getDishById(id) {
@@ -74,7 +72,6 @@ function addDishToOrder(shareCode, openid, dishId) {
 module.exports = {
   getCategories,
   getDishes,
-  getAllDishes,
   getDishById,
   createOrder,
   getOrderByShareCode,

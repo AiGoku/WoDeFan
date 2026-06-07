@@ -13,6 +13,14 @@ class DishOut(BaseModel):
     season_tag: str
 
 
+class PaginatedDishes(BaseModel):
+    items: list[DishOut]
+    total: int
+    limit: int
+    offset: int
+    has_more: bool
+
+
 class OrderItemIn(BaseModel):
     dish_id: int
     added_by_openid: str

@@ -1,38 +1,52 @@
 from fastapi import APIRouter, Depends, Query
 import aiosqlite
 from models.database import get_db
-from models.schemas import DishOut
+from models.schemas import DishOut, PaginatedDishes
 
 router = APIRouter(prefix="/dishes", tags=["菜品"])
 
 
-@router.get("/", response_model=list[DishOut])
+@router.get("/", response_model=PaginatedDishes)
 async def list_dishes(
     category: str = Query(None, description="分类筛选"),
     season: str = Query(None, description="当季推荐"),
     keyword: str = Query(None, description="搜索关键词"),
-    limit: int = Query(20, description="每页数量", ge=1, le=100),
+    limit: int = Query(10, description="每页数量", ge=1, le=100),
     offset: int = Query(0, description="偏移量", ge=0),
     db: aiosqlite.Connection = Depends(get_db),
 ):
-    query = "SELECT * FROM dishes WHERE 1=1"
+    # 构建筛选条件
+    where = "WHERE 1=1"
     params = []
 
     if category:
-        query += " AND category = ?"
+        where += " AND category = ?"
         params.append(category)
     if season:
-        query += " AND season_tag = ?"
+        where += " AND season_tag = ?"
         params.append(season)
     if keyword:
-        query += " AND name LIKE ?"
+        where += " AND name LIKE ?"
         params.append(f"%{keyword}%")
 
-    query += " ORDER BY id DESC LIMIT ? OFFSET ?"
-    params.extend([limit, offset])
-    cursor = await db.execute(query, params)
-    rows = await cursor.fetchall()
-    return [dict(row) for row in rows]
+    # 查询总数
+    count_cursor = await db.execute(f"SELECT COUNT(*) FROM dishes {where}", params)
+    total = (await count_cursor.fetchone())[0]
+
+    # 查询当前页数据
+    data_cursor = await db.execute(
+        f"SELECT * FROM dishes {where} ORDER BY id DESC LIMIT ? OFFSET ?",
+        params + [limit, offset],
+    )
+    rows = await data_cursor.fetchall()
+
+    return PaginatedDishes(
+        items=[dict(row) for row in rows],
+        total=total,
+        limit=limit,
+        offset=offset,
+        has_more=offset + limit < total,
+    )
 
 
 @router.get("/categories")
