@@ -39,7 +39,7 @@ Page({
     if (this.data.categories.length === 0) {
       const [categories, allDishes] = await Promise.all([
         api.getCategories(),
-        api.getDishes(),
+        api.getAllDishes(),
       ]);
       const dishes = allDishes.map(d => ({
         ...d,
@@ -57,7 +57,7 @@ Page({
   onCategoryTap(e) {
     const key = e.currentTarget.dataset.key;
     this.setData({ activeCategory: key });
-    const fetch = key ? api.getDishes({ category: key }) : api.getDishes();
+    const fetch = key ? api.getAllDishes({ category: key }) : api.getAllDishes();
     fetch.then(allDishes => {
       const dishes = allDishes.map(d => ({
         ...d,

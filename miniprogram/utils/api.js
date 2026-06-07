@@ -51,6 +51,10 @@ function getDishes(params = {}) {
   return request('GET', `/dishes/${qs ? '?' + qs : ''}`);
 }
 
+function getAllDishes(params = {}) {
+  return getDishes({ ...params, limit: 100 });
+}
+
 function getDishById(id) {
   return request('GET', `/dishes/${id}`);
 }
@@ -70,6 +74,7 @@ function addDishToOrder(shareCode, openid, dishId) {
 module.exports = {
   getCategories,
   getDishes,
+  getAllDishes,
   getDishById,
   createOrder,
   getOrderByShareCode,

@@ -11,6 +11,8 @@ async def list_dishes(
     category: str = Query(None, description="分类筛选"),
     season: str = Query(None, description="当季推荐"),
     keyword: str = Query(None, description="搜索关键词"),
+    limit: int = Query(20, description="每页数量", ge=1, le=100),
+    offset: int = Query(0, description="偏移量", ge=0),
     db: aiosqlite.Connection = Depends(get_db),
 ):
     query = "SELECT * FROM dishes WHERE 1=1"
@@ -26,7 +28,8 @@ async def list_dishes(
         query += " AND name LIKE ?"
         params.append(f"%{keyword}%")
 
-    query += " ORDER BY id DESC"
+    query += " ORDER BY id DESC LIMIT ? OFFSET ?"
+    params.extend([limit, offset])
     cursor = await db.execute(query, params)
     rows = await cursor.fetchall()
     return [dict(row) for row in rows]

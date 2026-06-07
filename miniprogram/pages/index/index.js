@@ -23,27 +23,18 @@ Page({
   async loadData() {
     this.setData({ loading: true });
     try {
-      const [categories, allDishes] = await Promise.all([
-        api.getCategories(),
-        api.getDishes(),
-      ]);
-
-      // 解析图片 URL 为完整地址
-      const dishes = allDishes.map(d => ({
-        ...d,
-        image_url: api.resolveImageUrl(d.image_url),
-      }));
+      const categories = await api.getCategories();
 
       const seasonMap = { 0: 'winter', 1: 'winter', 2: 'spring', 3: 'spring', 4: 'spring', 5: 'summer', 6: 'summer', 7: 'summer', 8: 'autumn', 9: 'autumn', 10: 'autumn', 11: 'winter' };
       const currentSeason = seasonMap[new Date().getMonth()];
-      const recommended = dishes.filter(d => d.season_tag === currentSeason);
 
       this.setData({
         categories: [{ key: '', name: '全部' }, ...categories],
-        recommended,
-        dishes,
         loading: false,
       });
+
+      // 分批加载菜品，避免一次性加载过多导致超时
+      this.loadDishesByCategory('', currentSeason);
     } catch (e) {
       console.error('加载失败', e);
       this.setData({ loading: false });
@@ -51,17 +42,28 @@ Page({
     }
   },
 
-  onCategoryTap(e) {
-    const key = e.currentTarget.dataset.key;
-    this.setData({ activeCategory: key });
-    const fetch = key ? api.getDishes({ category: key }) : api.getDishes();
-    fetch.then(allDishes => {
+  async loadDishesByCategory(category, currentSeason) {
+    try {
+      const params = category ? { category } : {};
+      const allDishes = await api.getAllDishes(params);
+
       const dishes = allDishes.map(d => ({
         ...d,
         image_url: api.resolveImageUrl(d.image_url),
       }));
-      this.setData({ dishes });
-    });
+
+      const recommended = currentSeason ? dishes.filter(d => d.season_tag === currentSeason) : [];
+
+      this.setData({ dishes, recommended });
+    } catch (e) {
+      console.error('加载菜品失败', e);
+    }
+  },
+
+  onCategoryTap(e) {
+    const key = e.currentTarget.dataset.key;
+    this.setData({ activeCategory: key });
+    this.loadDishesByCategory(key);
   },
 
   onDishTap(e) {

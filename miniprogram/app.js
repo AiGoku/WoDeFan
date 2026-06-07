@@ -1,6 +1,6 @@
 App({
   globalData: {
-    baseUrl: 'http://127.0.0.1:8000/api',
+    baseUrl: 'http://192.168.0.109:8000/api',
     openid: '',
     cart: [],
   },
