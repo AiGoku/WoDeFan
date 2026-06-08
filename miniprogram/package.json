@@ -1,0 +1,32 @@
+{
+  "name": "wodefan-miniprogram",
+  "version": "1.0.0",
+  "description": "我的饭微信小程序",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/__tests__/**/*.test.js"
+    ],
+    "moduleFileExtensions": [
+      "js",
+      "json"
+    ],
+    "transform": {},
+    "moduleNameMapper": {
+      "^wx$": "<rootDir>/__mocks__/wx.js"
+    },
+    "globals": {
+      "wx": true,
+      "App": true,
+      "getApp": true
+    }
+  }
+}
